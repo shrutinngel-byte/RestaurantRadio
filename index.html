@@ -131,8 +131,11 @@
 }
 
         function startApp() {
-            player.playVideo();
-            updateUI("Music", youtubePlaylist[songIdx].title);
+            // Hide the start button
+            document.querySelector('.btn-start').style.display = 'none';
+            
+            // START with the jingle instead of music
+            runJingleSequence(); 
         }
 
         function onPlayerStateChange(event) {
