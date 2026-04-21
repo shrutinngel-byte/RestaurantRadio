@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Restaurant Radio - YT Test Mode</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            text-align: center; 
+            background: #0f0f0f; 
+            color: #ffffff; 
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container { max-width: 700px; margin: auto; }
+
+        #player-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            background: #000;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        #player-wrapper iframe, #yt-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .status-box {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+
+        #status-label { font-size: 0.8rem; color: #aaa; text-transform: uppercase; }
+        #status-name { font-size: 1.2rem; font-weight: bold; color: #ff4757; display: block; margin-top: 5px; }
+
+        .btn-group { display: flex; gap: 10px; justify-content: center; }
+
+        button {
+            padding: 15px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-start { background: #27ae60; color: white; }
+        .btn-skip { background: #e67e22; color: white; }
+
+        #jingle-cue { margin-top: 15px; font-size: 0.9rem; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Restaurant Music Player</h1>
+
+        <div id="player-wrapper">
+            <div id="yt-player"></div>
+        </div>
+
+        <div class="status-box">
+            <span id="status-label">Now Airing</span>
+            <span id="status-name">Ready to Start</span>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-start" onclick="startApp()">▶ START RADIO</button>
+            <button class="btn-skip" onclick="skipToJingle()">⏭ SKIP TO JINGLE</button>
+        </div>
+
+        <div id="jingle-cue">Next Language: Kannada</div>
+    </div>
+
+    <audio id="jingle-player"></audio>
+
+    <script>
+        // 1. PLAYLIST CONFIGURATION
+        const youtubePlaylist = [
+            { id: 'hxMNYkLN7tI', title: 'Song 1' },
+            { id: 'YyepU5ztLf4', title: 'Song 2' },
+            { id: '2cwOW7mgLrY', title: 'Song 3' }
+        ];
+
+        const jingleSequence = [
+            { file: 'Kannada.mp3', name: 'Kannada Jingle' },
+            { file: 'english.mp3', name: 'English Jingle' },
+            { file: 'hindi.mp3', name: 'Hindi Jingle' }
+        ];
+
+        // 2. STATE TRACKING
+        let songIdx = 0;
+        let jingleIdx = 0;
+        let player;
+        const jinglePlayer = document.getElementById('jingle-player');
+        const statusName = document.getElementById('status-name');
+        const jingleCue = document.getElementById('jingle-cue');
+
+        // 3. YOUTUBE API LOAD
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.body.appendChild(tag);
+
+        function onYouTubeIframeAPIReady() {
+    player = new YT.Player('yt-player', {
+        height: '360',
+        width: '640',
+        videoId: youtubePlaylist[songIdx].id,
+        playerVars: { 
+            'autoplay': 0, 
+            'controls': 1, 
+            'rel': 0,
+            'enablejsapi': 1,
+            'origin': window.location.origin // Helps with security checks
+        },
+        events: { 'onStateChange': onPlayerStateChange }
+    });
+}
+
+        function startApp() {
+            player.playVideo();
+            updateUI("Music", youtubePlaylist[songIdx].title);
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                runJingleSequence();
+            }
+        }
+
+        function skipToJingle() {
+            player.stopVideo();
+            runJingleSequence();
+        }
+
+        // 4. SEQUENTIAL LOGIC
+        function runJingleSequence() {
+            const currentJingle = jingleSequence[jingleIdx];
+            updateUI("Jingle", currentJingle.name);
+
+            jinglePlayer.src = currentJingle.file;
+            jinglePlayer.play();
+
+            // Prepare index for next time
+            jingleIdx = (jingleIdx + 1) % jingleSequence.length;
+            jingleCue.innerText = "Next Language: " + jingleSequence[jingleIdx].name.split(' ')[0];
+
+            jinglePlayer.onended = () => {
+                playNextSong();
+            };
+        }
+
+        function playNextSong() {
+            songIdx = (songIdx + 1) % youtubePlaylist.length;
+            player.loadVideoById(youtubePlaylist[songIdx].id);
+            updateUI("Music", youtubePlaylist[songIdx].title);
+        }
+
+        function updateUI(type, text) {
+            statusName.innerText = text;
+            statusName.style.color = (type === "Jingle") ? "#3498db" : "#ff4757";
+        }
+    </script>
+</body>
+</html>
