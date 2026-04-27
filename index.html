@@ -79,7 +79,7 @@
 
         <div class="btn-group">
             <button class="btn-start" onclick="startApp()">▶ START RADIO</button>
-            <button class="btn-skip" onclick="skipToJingle()">⏭ SKIP TO JINGLE</button>
+            <button class="btn-skip" onclick="triggerNextRadioCycle()">SKIP TO NEXT</button>
         </div>
 
         <div id="jingle-cue">Next Language: Kannada</div>
@@ -175,11 +175,23 @@
             }
         }
 
-        function skipToJingle() {
+        function triggerNextRadioCycle() {
+            // 1. Stop the current YouTube song
             player.stopVideo();
+            
+            // 2. Stop any jingle currently playing and reset it
+            jinglePlayer.pause();
+            jinglePlayer.currentTime = 0;
+        
+            // 3. Move the Song counter forward
+            songIdx = (songIdx + 1) % youtubePlaylist.length;
+        
+            // 4. Move the Jingle counter forward 
+            jingleIdx = (jingleIdx + 1) % jingleSequence.length;
+        
+            // 5. Start the jingle sequence (which will auto-play the next song when done)
             runJingleSequence();
         }
-
         // 4. SEQUENTIAL LOGIC
         function runJingleSequence() {
             const currentJingle = jingleSequence[jingleIdx];
