@@ -42,32 +42,40 @@
         { file: 'trilingual.mp3', name: 'Trilingual Jingle' }
     ];
 
+    // 2. STATE TRACKING
     let songIdx = 0;
     let jingleIdx = 0;
-    let player;
+    let player = null; // Start as null for safety
     const jinglePlayer = document.getElementById('jingle-player');
     const statusName = document.getElementById('status-name');
 
-    // 2. YOUTUBE API
+    // 3. YOUTUBE API LOAD
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
 
     function onYouTubeIframeAPIReady() {
         player = new YT.Player('yt-player', {
-            height: '360', width: '640',
+            height: '360',
+            width: '100%', // Flexible width
             videoId: youtubePlaylist[songIdx].id,
-            playerVars: { 'autoplay': 0, 'controls': 1, 'rel': 0, 'enablejsapi': 1 },
+            playerVars: { 
+                'autoplay': 0, 
+                'controls': 1, 
+                'rel': 0,
+                'enablejsapi': 1,
+                'origin': window.location.origin 
+            },
             events: { 'onStateChange': onPlayerStateChange }
         });
     }
 
-    // 3. THE HANDSHAKE (When Jingle ends, Play Song)
+    // HANDSHAKE: When jingle ends, play the song
     jinglePlayer.onended = function() {
-        playSongAtIndex(songIdx);
+        playCurrentSong();
     };
 
-    // 4. THE FUNCTIONS
+    // 4. CORE FUNCTIONS
     function startApp() {
         document.querySelector('.btn-start').style.display = 'none';
         runJingleSequence(); 
@@ -75,7 +83,7 @@
 
     function onPlayerStateChange(event) {
         if (event.data === YT.PlayerState.ENDED) {
-            // Natural progression
+            // Natural progression: Move both forward
             songIdx = (songIdx + 1) % youtubePlaylist.length;
             jingleIdx = (jingleIdx + 1) % jingleSequence.length;
             runJingleSequence();
@@ -83,31 +91,35 @@
     }
 
     function triggerNextRadioCycle() {
-        // Stop current audio
-        player.stopVideo();
+        // Stop current audio/video immediately
+        if (player && player.stopVideo) player.stopVideo();
         jinglePlayer.pause();
         jinglePlayer.currentTime = 0;
 
-        // Advance indices
+        // Move BOTH indices forward once
         songIdx = (songIdx + 1) % youtubePlaylist.length;
         jingleIdx = (jingleIdx + 1) % jingleSequence.length;
 
-        // Start the sequence
+        // Play the next Jingle
         runJingleSequence();
     }
 
     function runJingleSequence() {
-        const currentJingle = jingleSequence[jingleIdx];
-        jinglePlayer.src = currentJingle.file;
+        const jingle = jingleSequence[jingleIdx];
+        if (!jingle) return;
+
+        jinglePlayer.src = jingle.file;
         jinglePlayer.load();
         jinglePlayer.play();
-        updateUI("Jingle", currentJingle.name);
+        updateUI("Jingle", jingle.name);
     }
 
-    function playSongAtIndex(index) {
-        const song = youtubePlaylist[index];
-        player.loadVideoById(song.id);
-        updateUI("Music", song.title);
+    function playCurrentSong() {
+        const song = youtubePlaylist[songIdx];
+        if (player && player.loadVideoById) {
+            player.loadVideoById(song.id);
+            updateUI("Music", song.title);
+        }
     }
 
     function updateUI(type, text) {
