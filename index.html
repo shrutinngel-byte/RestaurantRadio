@@ -1,222 +1,125 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Restaurant Radio - YT Test Mode</title>
-    <style>
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            text-align: center; 
-            background: #0f0f0f; 
-            color: #ffffff; 
-            margin: 0;
-            padding: 20px;
-        }
+<script>
+    // 1. PLAYLIST CONFIGURATION
+    const youtubePlaylist = [
+        { id: 'hxMNYkLN7tI', title: 'Song 1' },
+        { id: 'YyepU5ztLf4', title: 'Aaj ki raat' },
+        { id: '2cwOW7mgLrY', title: 'Tere Sang Yara' },
+        { id: 'VGIR7XtePBg', title: 'Ankhon Ankhon' },
+        { id: 'JFcgOboQZ08', title: 'Dilber' },
+        { id: 'f6vY6tYvKGA', title: 'Cham Cham' },
+        { id: 'k4yXQkG2s1E', title: 'Kala Chasma' },
+        { id: 'kd5KqlmcHNo', title: 'Breakup' },
+        { id: 'qcucgNV7Cmc', title: 'Zor Ka Jatka' },
+        { id: 'vdY5SFZBgnk', title: 'Sami Sami' },
+        { id: 'EjJvIQ9wPY8', title: 'Elo Jogappa' },
+        { id: '6z1U-kJ3xJE', title: 'Chunari Chunari' },
+        { id: 'xNR4FAEGxV4', title: 'Munjane Manjali'},
+        { id: '1BWdglekty0', title: 'Mahi Ve' },
+        { id: 'wDIrpvH8MzE', title: 'Desi Girl' },
+        { id: '3XShkcOze3s', title: 'Singara Siriye' },
+        { id: '6cKErCWrb44', title: 'Goomar' },
+        { id: 'P1fIdFRnfqw', title: 'What Jhumka' },
+        { id: 'sVsxtmDWY-Y', title: 'Nodayya' },
+        { id: 'AMuRRXCuy-4', title: 'Pal Pal' },
+        { id: 'vtTaDjzbPx8', title: 'Tu is tarah' },
+        { id: 'H1v4R5yPkZA', title: 'Sathiya Nahi' },
+        { id: 'mRiSmdJ_7do', title: 'Aaksha dinda' },
+        { id: '5l8Ljeo_6kM', title: 'Aaseya bhava' },
+        { id: 'J-pEDL4m1WA', title: 'Elliruve' },
+        { id: 'e5byqxOkzRw', title: 'Tunturu' },
+        { id: 'laoJjq7-WGQ', title: 'Kanmani' },
+        { id: '8eJrma1De5I', title: 'Shivuni' },
+        { id: 'x6Q7c9RyMzk', title: 'Rowdy Baby' },
+        { id: 'QrCQyRSoEtY', title: 'Mungaru' },
+        { id: '-xmRjO2G05c', title: 'Ninnidale' },
+        { id: 'V6heL74n_DE', title: 'Antu Intu' }
+    ];
 
-        .container { max-width: 700px; margin: auto; }
+    const jingleSequence = [
+        { file: 'kannada.mp3', name: 'Kannada Jingle' },
+        { file: 'english.mp3', name: 'English Jingle' },
+        { file: 'hindi.mp3', name: 'Hindi Jingle' },
+        { file: 'trilingual.mp3' , name: 'Trilingual Jingle'}
+    ];
 
-        #player-wrapper {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
-            background: #000;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+    // 2. STATE TRACKING
+    let songIdx = 0;
+    let jingleIdx = 0;
+    let player;
+    const jinglePlayer = document.getElementById('jingle-player');
+    const statusName = document.getElementById('status-name');
 
-        #player-wrapper iframe, #yt-player {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+    // 3. YOUTUBE API LOAD
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
 
-        .status-box {
-            background: #1e1e1e;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #333;
-        }
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('yt-player', {
+            height: '360',
+            width: '640',
+            videoId: youtubePlaylist[songIdx].id,
+            playerVars: { 
+                'autoplay': 0, 
+                'controls': 1, 
+                'rel': 0,
+                'enablejsapi': 1,
+                'origin': window.location.origin
+            },
+            events: { 'onStateChange': onPlayerStateChange }
+        });
+    }
 
-        #status-label { font-size: 0.8rem; color: #aaa; text-transform: uppercase; }
-        #status-name { font-size: 1.2rem; font-weight: bold; color: #ff4757; display: block; margin-top: 5px; }
+    // This is the "Engine" that connects the jingle to the music
+    jinglePlayer.onended = function() {
+        playCurrentSong(); // Play whatever song index we are currently on
+    };
 
-        .btn-group { display: flex; gap: 10px; justify-content: center; }
+    function startApp() {
+        document.querySelector('.btn-start').style.display = 'none';
+        runJingleSequence(); // Starts at jingleIdx 0 (Kannada)
+    }
 
-        button {
-            padding: 15px 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .btn-start { background: #27ae60; color: white; }
-        .btn-skip { background: #e67e22; color: white; }
-
-        #jingle-cue { margin-top: 15px; font-size: 0.9rem; color: #555; }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <h1>Restaurant Music Player</h1>
-
-        <div id="player-wrapper">
-            <div id="yt-player"></div>
-        </div>
-
-        <div class="status-box">
-            <span id="status-label">Now Airing</span>
-            <span id="status-name">Ready to Start</span>
-        </div>
-
-        <div class="btn-group">
-            <button class="btn-start" onclick="startApp()">▶ START RADIO</button>
-            <button class="btn-skip" onclick="triggerNextRadioCycle()">SKIP TO NEXT</button>
-        </div>
-
-        <div id="jingle-cue">Next Language: Kannada</div>
-    </div>
-
-    <audio id="jingle-player"></audio>
-
-    <script>
-        // 1. PLAYLIST CONFIGURATION
-        const youtubePlaylist = [
-            { id: 'hxMNYkLN7tI', title: 'Song 1' },
-            { id: 'YyepU5ztLf4', title: 'Aaj ki raat' },
-            { id: '2cwOW7mgLrY', title: 'Tere Sang Yara' },
-            { id: 'VGIR7XtePBg', title: 'Ankhon Ankhon' },
-            { id: 'JFcgOboQZ08', title: 'Dilber' },
-            { id: 'f6vY6tYvKGA', title: 'Cham Cham' },
-            { id: 'k4yXQkG2s1E', title: 'Kala Chasma' },
-            { id: 'kd5KqlmcHNo', title: 'Breakup' },
-            { id: 'qcucgNV7Cmc', title: 'Zor Ka Jatka' },
-            { id: 'vdY5SFZBgnk', title: 'Sami Sami' },
-            { id: 'EjJvIQ9wPY8', title: 'Elo Jogappa' },
-            { id: '6z1U-kJ3xJE', title: 'Chunari Chunari' },
-            { id: 'xNR4FAEGxV4', title: 'Munjane Manjali'},
-            { id: '1BWdglekty0', title: 'Mahi Ve' },
-            { id: 'wDIrpvH8MzE', title: 'Desi Girl' },
-            { id: '3XShkcOze3s', title: 'Singara Siriye' },
-            { id: '6cKErCWrb44', title: 'Goomar' },
-            { id: 'P1fIdFRnfqw', title: 'What Jhumka' },
-            { id: 'sVsxtmDWY-Y', title: 'Nodayya' },
-            { id: 'AMuRRXCuy-4', title: 'Pal Pal' },
-            { id: 'vtTaDjzbPx8', title: 'Tu is tarah' },
-            { id: 'H1v4R5yPkZA', title: 'Sathiya Nahi' },
-            { id: 'mRiSmdJ_7do', title: 'Aaksha dinda' },
-            { id: '5l8Ljeo_6kM', title: 'Aaseya bhava' },
-            { id: 'J-pEDL4m1WA', title: 'Elliruve' },
-            { id: 'e5byqxOkzRw', title: 'Tunturu' },
-            { id: 'laoJjq7-WGQ', title: 'Kanmani' },
-            { id: '8eJrma1De5I', title: 'Shivuni' },
-            { id: 'x6Q7c9RyMzk', title: 'Rowdy Baby' },
-            { id: 'QrCQyRSoEtY', title: 'Mungaru' },
-            { id: '-xmRjO2G05c', title: 'Ninnidale' },
-            { id: 'V6heL74n_DE', title: 'Antu Intu' }
-            
-        ];
-
-        const jingleSequence = [
-            { file: 'kannada.mp3', name: 'Kannada Jingle' },
-            { file: 'english.mp3', name: 'English Jingle' },
-            { file: 'hindi.mp3', name: 'Hindi Jingle' },
-            { file: 'trilingual.mp3' , name: 'Trilingual Jingle'}
-        ];
-
-        // 2. STATE TRACKING
-        let songIdx = 0;
-        let jingleIdx = 0;
-        let player;
-        const jinglePlayer = document.getElementById('jingle-player');
-        const statusName = document.getElementById('status-name');
-        const jingleCue = document.getElementById('jingle-cue');
-
-        // 3. YOUTUBE API LOAD
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        document.body.appendChild(tag);
-
-        function onYouTubeIframeAPIReady() {
-    player = new YT.Player('yt-player', {
-        height: '360',
-        width: '640',
-        videoId: youtubePlaylist[songIdx].id,
-        playerVars: { 
-            'autoplay': 0, 
-            'controls': 1, 
-            'rel': 0,
-            'enablejsapi': 1,
-            'origin': window.location.origin // Helps with security checks
-        },
-        events: { 'onStateChange': onPlayerStateChange }
-    });
-}
-
-        function startApp() {
-            // Hide the start button
-            document.querySelector('.btn-start').style.display = 'none';
-            
-            // START with the jingle instead of music
-            runJingleSequence(); 
-        }
-
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.ENDED) {
-                runJingleSequence();
-            }
-        }
-
-        function triggerNextRadioCycle() {
-            // 1. Stop the current YouTube song
-            player.stopVideo();
-            
-            // 2. Stop any jingle currently playing and reset it
-            jinglePlayer.pause();
-            jinglePlayer.currentTime = 0;
-        
-            // 3. Move the Song counter forward
-            songIdx = (songIdx + 1) % youtubePlaylist.length;
-        
-            // 4. Move the Jingle counter forward 
+    function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.ENDED) {
+            // When a song ends naturally, move both forward and play jingle
             jingleIdx = (jingleIdx + 1) % jingleSequence.length;
-        
-            // 5. Start the jingle sequence (which will auto-play the next song when done)
-            runJingleSequence(jingleIdx);
-        }
-        // 4. SEQUENTIAL LOGIC
-        // The "= jingleIdx" part is the default value
-        function runJingleSequence(index = jingleIdx) {
-            const currentJingle = jingleSequence[index];
-            
-            // Safety check: if the index is somehow invalid, stop here
-            if (!currentJingle) return;
-        
-            jinglePlayer.src = currentJingle.file;
-            jinglePlayer.load();
-            jinglePlayer.play();
-            
-            updateUI("Jingle", currentJingle.name);
-        }
-
-        function playNextSong() {
             songIdx = (songIdx + 1) % youtubePlaylist.length;
-            player.loadVideoById(youtubePlaylist[songIdx].id);
-            updateUI("Music", youtubePlaylist[songIdx].title);
+            runJingleSequence();
         }
+    }
 
-        function updateUI(type, text) {
-            statusName.innerText = text;
-            statusName.style.color = (type === "Jingle") ? "#3498db" : "#ff4757";
-        }
-    </script>
-</body>
-</html>
+    function triggerNextRadioCycle() {
+        player.stopVideo();
+        jinglePlayer.pause();
+        jinglePlayer.currentTime = 0;
+
+        // Increment indices
+        songIdx = (songIdx + 1) % youtubePlaylist.length;
+        jingleIdx = (jingleIdx + 1) % jingleSequence.length;
+
+        // Start jingle (which will trigger playCurrentSong on end)
+        runJingleSequence();
+    }
+
+    function runJingleSequence() {
+        const currentJingle = jingleSequence[jingleIdx];
+        if (!currentJingle) return;
+
+        jinglePlayer.src = currentJingle.file;
+        jinglePlayer.load();
+        jinglePlayer.play();
+        updateUI("Jingle", currentJingle.name);
+    }
+
+    function playCurrentSong() {
+        const currentSong = youtubePlaylist[songIdx];
+        player.loadVideoById(currentSong.id);
+        updateUI("Music", currentSong.title);
+    }
+
+    function updateUI(type, text) {
+        statusName.innerText = text;
+        statusName.style.color = (type === "Jingle") ? "#3498db" : "#ff4757";
+    }
+</script>
