@@ -1,5 +1,5 @@
 <script>
-    // 1. PLAYLIST CONFIGURATION
+    // 1. PLAYLIST & CONFIG
     const youtubePlaylist = [
         { id: 'hxMNYkLN7tI', title: 'Song 1' },
         { id: 'YyepU5ztLf4', title: 'Aaj ki raat' },
@@ -39,83 +39,75 @@
         { file: 'kannada.mp3', name: 'Kannada Jingle' },
         { file: 'english.mp3', name: 'English Jingle' },
         { file: 'hindi.mp3', name: 'Hindi Jingle' },
-        { file: 'trilingual.mp3' , name: 'Trilingual Jingle'}
+        { file: 'trilingual.mp3', name: 'Trilingual Jingle' }
     ];
 
-    // 2. STATE TRACKING
     let songIdx = 0;
     let jingleIdx = 0;
     let player;
     const jinglePlayer = document.getElementById('jingle-player');
     const statusName = document.getElementById('status-name');
 
-    // 3. YOUTUBE API LOAD
+    // 2. YOUTUBE API
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     document.body.appendChild(tag);
 
     function onYouTubeIframeAPIReady() {
         player = new YT.Player('yt-player', {
-            height: '360',
-            width: '640',
+            height: '360', width: '640',
             videoId: youtubePlaylist[songIdx].id,
-            playerVars: { 
-                'autoplay': 0, 
-                'controls': 1, 
-                'rel': 0,
-                'enablejsapi': 1,
-                'origin': window.location.origin
-            },
+            playerVars: { 'autoplay': 0, 'controls': 1, 'rel': 0, 'enablejsapi': 1 },
             events: { 'onStateChange': onPlayerStateChange }
         });
     }
 
-    // This is the "Engine" that connects the jingle to the music
+    // 3. THE HANDSHAKE (When Jingle ends, Play Song)
     jinglePlayer.onended = function() {
-        playCurrentSong(); // Play whatever song index we are currently on
+        playSongAtIndex(songIdx);
     };
 
+    // 4. THE FUNCTIONS
     function startApp() {
         document.querySelector('.btn-start').style.display = 'none';
-        runJingleSequence(); // Starts at jingleIdx 0 (Kannada)
+        runJingleSequence(); 
     }
 
     function onPlayerStateChange(event) {
         if (event.data === YT.PlayerState.ENDED) {
-            // When a song ends naturally, move both forward and play jingle
-            jingleIdx = (jingleIdx + 1) % jingleSequence.length;
+            // Natural progression
             songIdx = (songIdx + 1) % youtubePlaylist.length;
+            jingleIdx = (jingleIdx + 1) % jingleSequence.length;
             runJingleSequence();
         }
     }
 
     function triggerNextRadioCycle() {
+        // Stop current audio
         player.stopVideo();
         jinglePlayer.pause();
         jinglePlayer.currentTime = 0;
 
-        // Increment indices
+        // Advance indices
         songIdx = (songIdx + 1) % youtubePlaylist.length;
         jingleIdx = (jingleIdx + 1) % jingleSequence.length;
 
-        // Start jingle (which will trigger playCurrentSong on end)
+        // Start the sequence
         runJingleSequence();
     }
 
     function runJingleSequence() {
         const currentJingle = jingleSequence[jingleIdx];
-        if (!currentJingle) return;
-
         jinglePlayer.src = currentJingle.file;
         jinglePlayer.load();
         jinglePlayer.play();
         updateUI("Jingle", currentJingle.name);
     }
 
-    function playCurrentSong() {
-        const currentSong = youtubePlaylist[songIdx];
-        player.loadVideoById(currentSong.id);
-        updateUI("Music", currentSong.title);
+    function playSongAtIndex(index) {
+        const song = youtubePlaylist[index];
+        player.loadVideoById(song.id);
+        updateUI("Music", song.title);
     }
 
     function updateUI(type, text) {
