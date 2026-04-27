@@ -190,23 +190,21 @@
             jingleIdx = (jingleIdx + 1) % jingleSequence.length;
         
             // 5. Start the jingle sequence (which will auto-play the next song when done)
-            runJingleSequence();
+            runJingleSequence(jingleIdx);
         }
         // 4. SEQUENTIAL LOGIC
-        function runJingleSequence() {
-            const currentJingle = jingleSequence[jingleIdx];
-            updateUI("Jingle", currentJingle.name);
-
+        // The "= jingleIdx" part is the default value
+        function runJingleSequence(index = jingleIdx) {
+            const currentJingle = jingleSequence[index];
+            
+            // Safety check: if the index is somehow invalid, stop here
+            if (!currentJingle) return;
+        
             jinglePlayer.src = currentJingle.file;
+            jinglePlayer.load();
             jinglePlayer.play();
-
-            // Prepare index for next time
-            jingleIdx = (jingleIdx + 1) % jingleSequence.length;
-            jingleCue.innerText = "Next Language: " + jingleSequence[jingleIdx].name.split(' ')[0];
-
-            jinglePlayer.onended = () => {
-                playNextSong();
-            };
+            
+            updateUI("Jingle", currentJingle.name);
         }
 
         function playNextSong() {
