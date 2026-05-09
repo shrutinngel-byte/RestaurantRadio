@@ -32,35 +32,48 @@
     <audio id="jingle-player"></audio>
 
     <script>
+        // 1. DATA CONFIGURATION
         const youtubePlaylist = [
-            { id: 're88S-5fpmA', title: 'Ekadantaya' }, { id: 're88S-5fpmA', title: 'Ekadantaya' },
-             { id: 'xNR4FAEGxV4', title: 'Munjane Manjali'}, { id: 'xNR4FAEGxV4', title: 'Munjane Manjal' },
-             { id: 'sYzuTdrfWi4', title: 'Gandhada gudi' }, { id: 'sYzuTdrfWi4', title: 'Gandhada gudi' },
-            { id: 'hxMNYkLN7tI', title: 'Song 1' }, { id: 'YyepU5ztLf4', title: 'Aaj ki raat' },
-             { id: 'e-ORhEE9VVg', title: 'Blank Space' }, { id: 'e-ORhEE9VVg', title: 'Blank Space' },
-            { id: 'Ifjjvumk4Xs', title: 'Hele Kogile' }, { id: 'Ifjjvumk4Xs', title: 'Hele Kogile' },          
-            { id: '2cwOW7mgLrY', title: 'Tere Sang Yara' }, { id: 'VGIR7XtePBg', title: 'Ankhon Ankhon' },
-             { id: 'e5byqxOkzRw', title: 'Tunturu' }, { id: 'e5byqxOkzRw', title: 'Tunturu' },
-             { id: 'jQY_QL_wvQU', title: 'Free Willy' }, { id: 'jQY_QL_wvQU', title: 'Free Willy' },
-            { id: 'JFcgOboQZ08', title: 'Dilber' }, { id: 'f6vY6tYvKGA', title: 'Cham Cham' },
-             { id: '_SCdj9d8SUQ', title: 'Let Me love you' }, { id: '_SCdj9d8SUQ', title: 'Let Me love you' },
-            { id: 'k4yXQkG2s1E', title: 'Kala Chasma' }, { id: 'kd5KqlmcHNo', title: 'Breakup' },
-             { id: '-xmRjO2G05c', title: 'Ninnindale' }, { id: '-xmRjO2G05c', title: 'Ninnindale' },
-            { id: 'qcucgNV7Cmc', title: 'Zor Ka Jatka' }, { id: 'qcucgNV7Cmc', title: 'Zor Ka Jatka' },
-             { id: '2Vv-BfVoq4g', title: 'Perfect' }, { id: '2Vv-BfVoq4g', title: 'Perfect' },
-            { id: 'EjJvIQ9wPY8', title: 'Elo Jogappa' }, { id: '6z1U-kJ3xJE', title: 'Chunari Chunari' },
-            { id: '6cKErCWrb44', title: 'Goomar' }, { id: 'P1fIdFRnfqw', title: 'What Jhumka' },
-             { id: '7wtfhZwyrcc', title: 'Beleiver' }, { id: '7wtfhZwyrcc', title: 'Beleiver' },
-           { id: 'Zg3IGmwUnT4', title: 'Yene Kelu' }, { id: 'Zg3IGmwUnT4', title: 'Yene Kelu' },
-            { id: 'wDIrpvH8MzE', title: 'Desi Girl' }, { id: '3XShkcOze3s', title: 'Singara Siriye' },
-             { id: 'IobNcpiwpSc', title: 'Nothing at all' }, { id: 'IobNcpiwpSc', title: 'Nothing at all' },
-            { id: 'sVsxtmDWY-Y', title: 'Nodayya' }, { id: 'AMuRRXCuy-4', title: 'Pal Pal' },
-            { id: 'vtTaDjzbPx8', title: 'Tu is tarah' }, { id: 'H1v4R5yPkZA', title: 'Sathiya Nahi' },
-            { id: 'mRiSmdJ_7do', title: 'Aaksha dinda' }, { id: '5l8Ljeo_6kM', title: 'Aaseya bhava' },
-            { id: 'J-pEDL4m1WA', title: 'Elliruve' }, { id: 'e5byqxOkzRw', title: 'Tunturu' },
-            { id: 'laoJjq7-WGQ', title: 'Kanmani' }, { id: '8eJrma1De5I', title: 'Shivuni' },
-            { id: 'x6Q7c9RyMzk', title: 'Rowdy Baby' }, { id: 'QrCQyRSoEtY', title: 'Mungaru' },
-            { id: 'hejXc_FSYb8', title: 'Simba' }, { id: 'hejXc_FSYb8', title: 'Simba' }
+            { id: 're88S-5fpmA', title: 'Ekadantaya' },
+            { id: 'xNR4FAEGxV4', title: 'Munjane Manjali' }, // Fixed syntax here
+            { id: 'sYzuTdrfWi4', title: 'Gandhada gudi' },
+            { id: 'hxMNYkLN7tI', title: 'Song 1' },
+            { id: 'YyepU5ztLf4', title: 'Aaj ki raat' },
+            { id: 'e-ORhEE9VVg', title: 'Blank Space' },
+            { id: 'Ifjjvumk4Xs', title: 'Hele Kogile' },         
+            { id: '2cwOW7mgLrY', title: 'Tere Sang Yara' },
+            { id: 'VGIR7XtePBg', title: 'Ankhon Ankhon' },
+            { id: 'e5byqxOkzRw', title: 'Tunturu' },
+            { id: 'jQY_QL_wvQU', title: 'Free Willy' },
+            { id: 'JFcgOboQZ08', title: 'Dilber' },
+            { id: 'f6vY6tYvKGA', title: 'Cham Cham' },
+            { id: '_SCdj9d8SUQ', title: 'Let Me love you' },
+            { id: 'k4yXQkG2s1E', title: 'Kala Chasma' },
+            { id: 'kd5KqlmcHNo', title: 'Breakup' },
+            { id: '-xmRjO2G05c', title: 'Ninnidale' },
+            { id: 'qcucgNV7Cmc', title: 'Zor Ka Jatka' },
+            { id: '2Vv-BfVoq4g', title: 'Perfect' },
+            { id: 'EjJvIQ9wPY8', title: 'Elo Jogappa' },
+            { id: '6z1U-kJ3xJE', title: 'Chunari Chunari' },
+            { id: '6cKErCWrb44', title: 'Goomar' },
+            { id: 'P1fIdFRnfqw', title: 'What Jhumka' },
+            { id: '7wtfhZwyrcc', title: 'Believer' },
+            { id: 'Zg3IGmwUnT4', title: 'Yene Kelu' },
+            { id: 'wDIrpvH8MzE', title: 'Desi Girl' },
+            { id: '3XShkcOze3s', title: 'Singara Siriye' },
+            { id: 'IobNcpiwpSc', title: 'Nothing at all' },
+            { id: 'sVsxtmDWY-Y', title: 'Nodayya' },
+            { id: 'AMuRRXCuy-4', title: 'Pal Pal' },
+            { id: 'vtTaDjzbPx8', title: 'Tu is tarah' },
+            { id: 'H1v4R5yPkZA', title: 'Sathiya Nahi' },
+            { id: 'mRiSmdJ_7do', title: 'Aaksha dinda' },
+            { id: '5l8Ljeo_6kM', title: 'Aaseya bhava' },
+            { id: 'J-pEDL4m1WA', title: 'Elliruve' },
+            { id: 'laoJjq7-WGQ', title: 'Kanmani' },
+            { id: '8eJrma1De5I', title: 'Shivuni' },
+            { id: 'x6Q7c9RyMzk', title: 'Rowdy Baby' },
+            { id: 'QrCQyRSoEtY', title: 'Mungaru' },
+            { id: 'hejXc_FSYb8', title: 'Simba' }
         ];
 
         const jingleSequence = [
@@ -75,7 +88,7 @@
         let player;
         const jinglePlayer = document.getElementById('jingle-player');
 
-        // YouTube API Load
+        // 2. YOUTUBE API INITIALIZATION
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         document.body.appendChild(tag);
@@ -83,12 +96,17 @@
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('yt-player', {
                 videoId: youtubePlaylist[songIdx].id,
-                playerVars: { 'autoplay': 0, 'controls': 1 },
+                playerVars: { 
+                    'autoplay': 0, 
+                    'controls': 1,
+                    'origin': window.location.origin 
+                },
                 events: { 'onStateChange': onPlayerStateChange }
             });
         }
 
-        // The Bridge: Jingle ends -> Load current song ID
+        // 3. LOGIC & EVENTS
+        // When a jingle ends, trigger the YouTube song
         jinglePlayer.onended = function() {
             player.loadVideoById(youtubePlaylist[songIdx].id);
             updateUI("Music", youtubePlaylist[songIdx].title);
@@ -104,7 +122,7 @@
             jinglePlayer.pause();
             jinglePlayer.currentTime = 0;
 
-            // Move BOTH forward
+            // Increment indices
             songIdx = (songIdx + 1) % youtubePlaylist.length;
             jingleIdx = (jingleIdx + 1) % jingleSequence.length;
 
@@ -122,7 +140,7 @@
         function playJingle() {
             const currentJingle = jingleSequence[jingleIdx];
             jinglePlayer.src = currentJingle.file;
-            jinglePlayer.play();
+            jinglePlayer.play().catch(e => console.log("Audio play blocked until user interacts."));
             updateUI("Jingle", currentJingle.name);
         }
 
